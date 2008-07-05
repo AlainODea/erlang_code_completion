@@ -13,12 +13,4 @@ selected([#xmlText{value=Selected}]) -> Selected;
 selected([]) ->"".
 
 ascii_plist(MenuItems) ->
-    lists:reverse([");}"|
-        lists:foldl(
-            fun(Item, Completions) ->
-                [io_lib:format("{title = ~s;},", [Item])|Completions]
-            end,
-            ["{menuItems = ("],
-            MenuItems
-        )
-    ]).
+    ["{menuItems = (", [io_lib:format("{title = ~s;},", [Item]) || Item <- MenuItems], ");}"].
