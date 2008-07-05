@@ -17,7 +17,7 @@ menu([{module, Module}|Options]) -> [atom_to_list(Module)|menu(Options)];
 menu([_|Options]) -> menu(Options);
 menu([]) -> [].
 
-option([], _, _) -> [];
+option([], _, _) -> "";
 option(Selection, [Option|_], [Selection|_]) -> Option;
 option(Selection, [_|Options], [_|Menu]) -> option(Selection, Options, Menu).
 
