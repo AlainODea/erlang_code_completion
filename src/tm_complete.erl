@@ -1,13 +1,17 @@
 -module (tm_complete).
 -export ([string/1, string/2]).
 
-string(String) -> snippet(users_choice(complete:string(String))).
-string(Local, String) -> snippet(users_choice(complete:string(Local, String))).
+string(String) -> string([], String).
+string(Local, String) -> 
+    {PrefixLength, Options} = complete:string(Local, String),
+    Choice = users_choice(Options),
+    snippet(PrefixLength, Choice).
 
 users_choice([Option]) -> Option;
 users_choice(Options) ->
     Menu = menu(Options),
-    option(tm_menu:selection(Menu), Options, Menu).
+    Selection = tm_menu:selection(Menu),
+    option(Selection, Options, Menu).
 
 menu([{fun_ref, {Function, Arity}}|Options]) ->
     [lists:flatten(io_lib:format("~w/~w", [Function, Arity]))|menu(Options)];
@@ -21,10 +25,12 @@ option([], _, _) -> "";
 option(Selection, [Option|_], [Selection|_]) -> Option;
 option(Selection, [_|Options], [_|Menu]) -> option(Selection, Options, Menu).
 
-snippet({fun_ref, {F, A}}) -> io_lib:format("~w/~w", [F, A]);
-snippet({call, {F, A}}) -> io_lib:format("~w(~s)", [F, args(A)]);
-snippet({module, M}) -> atom_to_list(M);
-snippet(_) -> "".
+snippet(L, {fun_ref, {F, A}}) -> io_lib:format("~s/~w", [trim(L, F), A]);
+snippet(L, {call, {F, A}}) -> io_lib:format("~s(~s)", [trim(L, F), args(A)]);
+snippet(L, {module, M}) -> trim(L, M);
+snippet(_, _) -> "".
+
+trim(PrefixLength, Atom) -> string:substr(atom_to_list(Atom), PrefixLength + 1).
 
 args(Arity) -> args(Arity, 1).
 args(Arity, Arity) -> io_lib:format("${~w:Arg~w}", [Arity, Arity]);
