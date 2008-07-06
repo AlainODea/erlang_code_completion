@@ -15,7 +15,8 @@ par_connect(Listen) ->
 complete(Socket) ->
     receive
         {tcp, Socket, Module} ->
-            gen_tcp:send(tm_complete:string(module(Module), string(Socket)));
+            Completion = tm_complete:string(module(Module), string(Socket)),
+            gen_tcp:send(Socket, Completion);
         _ -> ok
     end.
 
@@ -23,9 +24,13 @@ module(Module) ->
     {ok, Trimmed, _} = regexp:gsub(Module, "[\r\n]", ""),
     list_to_atom(Trimmed).
 
-string(Socket) ->
+string(Socket) -> lists:flatten(gather(Socket)).
+gather(Socket) ->
     receive
         {tcp, Socket, [$\f|_]} -> [];
-        {tcp, Socket, Line} -> [Line|string(Socket)];
+        {tcp, Socket, [$-|_]} -> gather(Socket);
+        {tcp, Socket, Data} ->
+            {ok, Cleaned, _} = regexp:gsub(Data, "[\r\n]", ""),
+            [Cleaned|gather(Socket)];
         _ -> []
     end.

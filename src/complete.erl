@@ -70,7 +70,7 @@ complete(Local, [{atom,1,Function=Module}|_]) ->
     % select builtin calls
     % select local calls
     % select modules
-    [{call, F} || F <- lists:filter(starts_with(atom_to_list(Function)), Local:module_info(exports)) ++ builtins()] ++
+    [{call, F} || F <- lists:filter(starts_with(atom_to_list(Function)), Local:module_info(exports) ++ builtins())] ++
     [{module, M} || M <- lists:filter(starts_with(atom_to_list(Module)), lists:sort(erlang:loaded()))];
 
 complete(_, _) -> [].

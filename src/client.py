@@ -8,12 +8,11 @@ module = os.getenv('TM_FILEPATH').split('/').pop().split('.').pop(0)
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('127.0.0.1',2345))
 s.send(module + os.linesep)
-line = 1
+line_num = 1
 for line in sys.stdin:
-    if line == tm_line_number:
+    if line_num == tm_line_number:
         s.send(line[0:tm_line_index].rstrip() + os.linesep)
         break
-    else:
-        s.send(line.rstrip() + os.linesep)
+    line_num = line_num + 1
 s.send('\f' + os.linesep)
 print s.recv(4096)
