@@ -1,11 +1,14 @@
 -module (tm_complete_server).
 -export([start/0]).
 
-start() ->
+start() -> spawn(fun run/0).
+
+run() ->
     {ok, Listen} = gen_tcp:listen(2345, [list, {packet, line},
                                          {reuseaddr, true},
                                          {active, true}]),
-    spawn(fun() -> par_connect(Listen) end).
+    spawn(fun() -> par_connect(Listen) end),
+    receive die -> ok end.
 
 par_connect(Listen) ->
     {ok, Socket} = gen_tcp:accept(Listen),
