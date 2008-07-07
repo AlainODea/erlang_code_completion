@@ -17,15 +17,17 @@ par_connect(Listen) ->
 
 complete(Socket) ->
     receive
-        {tcp, Socket, Module} ->
-            Completion = tm_complete:string(module(Module), string(Socket)),
+        {tcp, Socket, Header} ->
+            {Module, Paths} = term(Header),
+            [code:add_path(Path) || Path <- Paths],
+            Completion = tm_complete:string(Module, string(Socket)),
             gen_tcp:send(Socket, Completion);
         _ -> ok
     end.
 
-module(Module) ->
-    {ok, Trimmed, _} = regexp:gsub(Module, "[\r\n]", ""),
-    list_to_atom(Trimmed).
+term(String) ->
+    {ok, Tokens, _} = erl_scan:string(String),
+    erl_parse:parse_term(Tokens).
 
 string(Socket) -> lists:flatten(gather(Socket)).
 gather(Socket) ->
