@@ -18,7 +18,7 @@ par_connect(Listen) ->
 complete(Socket) ->
     receive
         {tcp, Socket, Header} ->
-            {Module, Paths} = term(Header),
+            {ok, {Module, Paths}} = term(Header),
             [code:add_path(Path) || Path <- Paths],
             Completion = tm_complete:string(Module, string(Socket)),
             gen_tcp:send(Socket, Completion);
