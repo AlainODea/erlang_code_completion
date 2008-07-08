@@ -1,2 +1,3 @@
+.hg/
 erl_crash.dump
 *.beam
