@@ -32,6 +32,7 @@ snippet(_, _) -> "".
 
 trim(PrefixLength, Atom) -> string:substr(atom_to_list(Atom), PrefixLength + 1).
 
+args(0) -> "";
 args(Arity) -> args(Arity, 1).
 args(Arity, Arity) -> io_lib:format("${~w:Arg~w}", [Arity, Arity]);
 args(Arity, N) ->
