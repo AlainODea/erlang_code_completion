@@ -1,0 +1,12 @@
+Install for TextMate
+====================
+- Create folder Erlang.tmbundle/Support/completion/
+- Copy Makefile, support/, src/ and ebin/ into Erlang.tmbundle/Support/completion/
+- Open Bundle Editor and add a command to the Erlang bundle:
+  - call the command Completion
+  - set Save to Nothing
+  - copy/paste client.rb into the Command(s) box
+  - set Input to Entire Document
+  - set Output to Discard
+  - set Key Equivalent to Alt-ESC (if you want it to be like other bundles)
+  - set Scope Selector to source.erlang
