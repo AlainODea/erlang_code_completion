@@ -3,29 +3,20 @@ require "#{ENV['TM_SUPPORT_PATH']}/lib/scriptmate.rb"
 require "#{ENV['TM_SUPPORT_PATH']}/lib/progress.rb"
 require "#{ENV['TM_SUPPORT_PATH']}/lib/exit_codes.rb"
 require "#{ENV['TM_SUPPORT_PATH']}/lib/ui.rb"
-require 'socket'
-require 'timeout'
 line_number = ENV['TM_LINE_NUMBER'].to_i
 line_index = ENV['TM_LINE_INDEX'].to_i
 support = ENV['TM_BUNDLE_SUPPORT']
 ebin = "#{ENV['TM_PROJECT_DIRECTORY']}/#{ENV['TM_ERLANG_BIN']}"
 module_name = ENV['TM_FILEPATH'].split('/')[-1].split('.')[0]
-begin
-    client = TCPSocket.new('127.0.0.1', 2345)
-rescue
+to_complete = STDIN.readlines
+to_complete = to_complete[line_number-1][0..line_index-1].gsub('\\', '\\\\\\\\').gsub('"', '\"')
+erl_call=`find #{ENV['ERLANG_HOME']} -name erl_call`.split("\n")[0]
+response = `#{erl_call} -n tm_complete -a 'code add_path [\"#{ebin}\"]' -a 'tm_complete complete [#{module_name}, \"#{to_complete}\"]' 2>/dev/null`
+if (response =~ /^".*"$/) == nil
     TextMate.call_with_progress(:title => "Erlang Code Completion", :message => "Launching Erlang Code Completion Server... Please wait") do
-        `cd "#{support}/completion"; make`
-        my_popen3 "#{ENV['ERLANG_HOME']}/bin/erl -noshell -detached -pa \"#{support}/completion/ebin\" -s tm_complete_server"
+        `cd "#{support}/completion"; make --silent >/dev/null 2>&1`
+        `#{erl_call} -s -n tm_complete -a 'code add_path [\"#{support}/completion/ebin\"]'`
     end
-else
-    client.print "{#{module_name}, [\"#{ebin}\"]}.\n"
-    current_line_number = 1
-    while $stdin.gets
-        if current_line_number == line_number
-            client.print $_[0..line_index-1] + "\n"
-        end
-        current_line_number += 1
-    end
-    client.print "\f\n"
-    TextMate.exit_insert_snippet(client.gets(nil))
+    response = `#{erl_call} -n tm_complete -a 'code add_path [\"#{ebin}\"]' -a 'tm_complete complete [#{module_name}, \"#{to_complete}\"]' 2>/dev/null`
 end
+TextMate.exit_insert_snippet(response[1..-2])

@@ -1,7 +1,9 @@
 -module (tm_complete).
--export ([string/1, string/2]).
+-export ([complete/2, string/2]).
 
-string(String) -> string([], String).
+complete(Local, String) ->
+    lists:flatten(string(Local, String)).
+
 string(Local, String) -> 
     {PrefixLength, Options} = complete:string(Local, String),
     Choice = users_choice(Options),
