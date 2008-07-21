@@ -9,7 +9,6 @@ string(Local, String) ->
     Choice = users_choice(Options),
     snippet(PrefixLength, Choice).
 
-users_choice([Option]) -> Option;
 users_choice(Options) ->
     Menu = menu(Options),
     Selection = tm_menu:selection(Menu),
