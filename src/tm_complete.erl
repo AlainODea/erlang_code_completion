@@ -19,6 +19,7 @@ menu([{fun_ref, {Function, Arity}}|Options]) ->
 menu([{call, {Function, Arity}}|Options]) ->
     [lists:flatten(io_lib:format("~w/~w", [Function, Arity]))|menu(Options)];
 menu([{module, Module}|Options]) -> [atom_to_list(Module)|menu(Options)];
+menu([{var, Var}|Options]) -> [atom_to_list(Var)|menu(Options)];
 menu([_|Options]) -> menu(Options);
 menu([]) -> [].
 
@@ -29,6 +30,7 @@ option(Selection, [_|Options], [_|Menu]) -> option(Selection, Options, Menu).
 snippet(L, {fun_ref, {F, A}}) -> io_lib:format("~s/~w", [trim(L, F), A]);
 snippet(L, {call, {F, A}}) -> io_lib:format("~s(~s)", [trim(L, F), args(A)]);
 snippet(L, {module, M}) -> trim(L, M);
+snippet(L, {var, V}) -> trim(L, V);
 snippet(_, _) -> "".
 
 trim(PrefixLength, Atom) -> string:substr(atom_to_list(Atom), PrefixLength + 1).
